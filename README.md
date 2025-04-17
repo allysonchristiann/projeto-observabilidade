@@ -69,16 +69,22 @@ Este projeto tem como objetivo implementar uma stack de observabilidade completa
 
 ---
 
-# Clone o repositório
+## Clone o repositório
+ ```python
 git clone https://github.com/allysonchristiann/projeto-observabilidade.git
 cd projeto-observabilidade
+  ```
 
-# Suba todos os serviços
+## Suba todos os serviços
+ ```python
 docker compose up -d
+  ```
 
-# Inicie as requisições automáticas
+## Inicie as requisições automáticas
+ ```python
 chmod +x send-requests.sh
 nohup ./send-requests.sh > output.log 2>&1 &
+  ```
 
 ---
 
