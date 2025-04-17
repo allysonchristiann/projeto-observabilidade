@@ -80,7 +80,7 @@ cd projeto-observabilidade
 docker compose up -d
   ```
 
-## Inicie as requisições automáticas
+## Inicie as requisições automáticas (gera observabilidade)
  ```python
 chmod +x send-requests.sh
 nohup ./send-requests.sh > output.log 2>&1 &
