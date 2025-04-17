@@ -1,0 +1,29 @@
+groups:
+  - name: flask-app-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_server_requests_seconds_count{status="500",job="flask-app"}[1m]) > 0.5
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Alta taxa de erro 500 no flask-dice-app"
+          description: "Mais de 0.5 requisições com erro 500 por segundo."
+
+      - alert: NoRequests
+        expr: absent(http_server_requests_seconds_count{job="flask-app"})
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Aplicação flask-dice-app não está emitindo métricas"
+          description: "Não há registros de requisições nas últimas 1m."
+
+      - alert: FrequentFailures
+        expr: increase(http_server_requests_seconds_count{status="500",job="flask-app"}[2m]) > 5
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Mais de 5 falhas detectadas em 2 minutos"
+          description: "Endpoint pode estar instável ou em falha recorrente."
