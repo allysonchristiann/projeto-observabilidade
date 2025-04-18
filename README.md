@@ -1,106 +1,70 @@
-# 🧠 Projeto de Observabilidade - Flask App
+# Projeto de Observabilidade com Flask, Prometheus, Grafana, Jaeger e OpenTelemetry
 
-Este projeto é uma arquitetura completa de observabilidade para uma aplicação Flask que simula jogadas de dado. Ele reúne métricas, logs e traces utilizando ferramentas open source modernas como Prometheus, Grafana, Jaeger, OpenTelemetry e Redis.
+Este projeto demonstra uma arquitetura completa de observabilidade para uma aplicação Flask que simula jogadas de dado. Utilizamos:
 
-## 🔧 Tecnologias Utilizadas
+- **Prometheus** para métricas
+- **Grafana** para visualização
+- **Jaeger** para traces
+- **OpenTelemetry** para instrumentação
+- **Redis** para armazenamento das jogadas
+- **Docker Compose** para orquestração dos serviços
 
-- **Flask** — Aplicação principal (simula jogadas de dado)
-- **Prometheus** — Coleta de métricas
-- **Grafana** — Visualização de métricas e dashboards
-- **Jaeger** — Tracing distribuído via OpenTelemetry
-- **Redis** — Armazena histórico das jogadas de dado
-- **cAdvisor** — Métricas de containers Docker
-- **Node Exporter** — Métricas do host
-- **OpenTelemetry Collector** — Coleta e exporta métricas/traces
+---
 
-## 📊 Dashboard de Observabilidade
+## 📦 Como rodar o projeto do zero
 
-O Grafana carrega automaticamente o dashboard `Observabilidade - Flask App` com as seguintes visualizações:
-
-### 🎲 Métricas de Aplicação
-
-- **Requisições por segundo**
-- **Erros 5xx**
-- **Tempo de resposta P95**
-- **Histograma de resposta**
-- **Requisições por status**
-- **Jogadas de dado por valor**
-- **Top 5 valores mais jogados**
-
-### 🧩 Tracing (via Jaeger)
-
-- **GET /**, **GET /metrics**, **GET /health**, **GET /history**
-- **LPUSH** e **LRANGE** em Redis
-
-### 🖥️ Infraestrutura
-
-- **Tráfego de rede da interface eth0**
-- **Espaço em disco**
-
-## 🚀 Subindo o projeto
-
-### Pré-requisitos
-
-- Docker + Docker Compose
-- Git
-
-### Comandos
+> Requisitos: Docker e Docker Compose
 
 ```bash
-# Clone o repositório
+# 1. Clone o repositório
 git clone https://github.com/allysonchristiann/projeto-observabilidade.git
 cd projeto-observabilidade
 
-# Suba todos os serviços
-docker compose up -d
+# 2. Suba todos os containers com build automático da aplicação Flask
+docker compose up --build -d
 ```
 
-### Acesso aos serviços
+---
 
-| Serviço       | URL                     |
-|---------------|--------------------------|
-| Flask App     | http://localhost:5000    |
-| Prometheus    | http://localhost:9090    |
-| Grafana       | http://localhost:3000    |
-| Jaeger        | http://localhost:16686   |
-| cAdvisor      | http://localhost:8080    |
+## 🔍 Acessos rápidos
 
-**Login do Grafana:**  
-Usuário: `admin`  
-Senha: `admin`
+- **Grafana**: [http://localhost:3000](http://localhost:3000)
+  - Usuário: `admin` | Senha: `admin`
+- **Prometheus**: [http://localhost:9090](http://localhost:9090)
+- **Jaeger**: [http://localhost:16686](http://localhost:16686)
+- **Aplicação Flask**: [http://localhost:5000](http://localhost:5000)
 
-## 📈 Prometheus
+---
 
-Arquivo de configuração: [`prometheus/prometheus.yml`](prometheus/prometheus.yml)  
-Regras de alertas: [`prometheus/rules.yml`](prometheus/rules.yml)
+## 📊 Dashboards no Grafana
 
-Inclui alertas como:
+O Grafana já vem configurado com painéis automáticos:
 
-- Alta taxa de erros 500
-- Ausência de requisições
-- Falhas frequentes
+- Requisições por segundo
+- Erros 5xx
+- Tempo de resposta P95
+- Tempo de resposta por rota
+- Status por código HTTP
+- Métricas do Redis
+- Traces por endpoint (via Jaeger)
+- Métricas de infraestrutura (CPU, disco, rede)
 
-## 🔍 OpenTelemetry + Tracing
+---
 
-- O `otel-collector.yaml` define a coleta de traces da aplicação e o envio ao Jaeger.
-- Todas as rotas da aplicação Flask são automaticamente instrumentadas.
+## 🧠 Arquitetura
 
-## 📁 Estrutura do Projeto
+Todos os serviços são orquestrados via `docker compose` e estão configurados no arquivo `compose.yml`.
 
-```
-projeto-observabilidade/
-├── build/                     # Código da aplicação Flask
-│   └── app.py
-├── compose.yml                # Compose de todos os serviços
-├── grafana/
-│   ├── dashboards/            # Dashboard JSON
-│   └── provisioning/          # Provisionamento automático
-│       ├── dashboards/
-│       └── datasources/
-├── prometheus/
-│   ├── prometheus.yml
-│   └── rules.yml
-├── otel-collector.yaml        # Configuração do Otel Collector
-├── send-requests.sh           # Script de simulação de carga
-└── README.md                  # Este arquivo
-```
+---
+
+## 🐛 Possíveis problemas na primeira instalação
+
+- **Erro de pull da imagem `server`**:
+  Isso é esperado caso o build ainda não tenha sido feito. Use sempre `docker compose up --build -d`.
+
+- **Timeout ao baixar imagens (como `grafana/grafana`)**:
+  Pode ocorrer por problemas temporários de rede. Basta executar novamente `docker compose up --build`.
+
+---
+
+Atualizado em: 18/04/2025 02:14:00
