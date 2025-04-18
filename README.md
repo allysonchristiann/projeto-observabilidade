@@ -1,120 +1,106 @@
-### 📌 Projeto de Observabilidade - Flask + OpenTelemetry
+# 🧠 Projeto de Observabilidade - Flask App
 
-Este projeto tem como objetivo implementar uma stack de observabilidade completa utilizando:
+Este projeto é uma arquitetura completa de observabilidade para uma aplicação Flask que simula jogadas de dado. Ele reúne métricas, logs e traces utilizando ferramentas open source modernas como Prometheus, Grafana, Jaeger, OpenTelemetry e Redis.
 
-- Aplicação Python (Flask)
-- OpenTelemetry (para métricas, logs e traces)
-- Prometheus (coleta de métricas)
-- Grafana (dashboard)
-- Jaeger (tracing)
-- Docker Compose
+## 🔧 Tecnologias Utilizadas
 
----
+- **Flask** — Aplicação principal (simula jogadas de dado)
+- **Prometheus** — Coleta de métricas
+- **Grafana** — Visualização de métricas e dashboards
+- **Jaeger** — Tracing distribuído via OpenTelemetry
+- **Redis** — Armazena histórico das jogadas de dado
+- **cAdvisor** — Métricas de containers Docker
+- **Node Exporter** — Métricas do host
+- **OpenTelemetry Collector** — Coleta e exporta métricas/traces
 
-## ⚠️ Principais Erros e Soluções Durante a Implementação
+## 📊 Dashboard de Observabilidade
 
-### 🧱 Etapa: OpenTelemetry Collector
+O Grafana carrega automaticamente o dashboard `Observabilidade - Flask App` com as seguintes visualizações:
 
-- **Erro**: o container `otel-collector` reiniciava constantemente.
-- **Motivo**: uso do `exporter: logging` que está deprecated.
-- **Solução**:
-  - Substituído por exporters válidos como `otlp`, `prometheus` e `jaeger`.
-  - Corrigido o `receivers` e `pipelines` no `otel-collector-config.yaml`.
+### 🎲 Métricas de Aplicação
 
-### 🐍 Etapa: Instrumentação da aplicação Flask
+- **Requisições por segundo**
+- **Erros 5xx**
+- **Tempo de resposta P95**
+- **Histograma de resposta**
+- **Requisições por status**
+- **Jogadas de dado por valor**
+- **Top 5 valores mais jogados**
 
-- **Erro**: métricas não apareciam no Prometheus.
-- **Motivo**: a aplicação Flask não estava expondo o endpoint `/metrics`.
-- **Solução**: incluímos:
-  ```python
-  from prometheus_client import start_http_server
-  start_http_server(8000)
-  ```
-  no `app.py`.
+### 🧩 Tracing (via Jaeger)
 
-### 📊 Etapa: Dashboards e Visualização
+- **GET /**, **GET /metrics**, **GET /health**, **GET /history**
+- **LPUSH** e **LRANGE** em Redis
 
-- **Problema**: dashboards no Grafana estavam “feios” e pouco informativos.
-- **Solução**:
-  - Criamos um novo dashboard do zero com:
-    - Latência média por endpoint
-    - Status da aplicação
-    - Requisições por segundo
-    - Erros 5xx
-    - Service Map (via Jaeger)
-    - Tempo de resposta P95
+### 🖥️ Infraestrutura
 
----
+- **Tráfego de rede da interface eth0**
+- **Espaço em disco**
 
-## ✅ Melhorias implementadas
+## 🚀 Subindo o projeto
 
-- Logging estruturado com `trace_id` e `span_id`
-- Métrica customizada: tempo de resposta
-- Dashboard Jaeger para dependências
-- Histogramas no Grafana
-- Anotações com eventos
-- Healthcheck com alerta real via Prometheus
+### Pré-requisitos
 
----
+- Docker + Docker Compose
+- Git
 
-## ✅ Componentes
+### Comandos
 
-| Componente        | Porta | Função                            |
-|------------------|-------|-----------------------------------|
-| Flask App         | 5000  | API principal simulando dados    |
-| Prometheus        | 9090  | Coleta métricas do Collector     |
-| Grafana           | 3000  | Visualização de métricas         |
-| Jaeger UI         | 16686 | Visualização de traces           |
-| Otel Collector    | 4317  | Recebe spans e métricas          |
-
----
-
-## Clone o repositório
- ```python
+```bash
+# Clone o repositório
 git clone https://github.com/allysonchristiann/projeto-observabilidade.git
 cd projeto-observabilidade
-  ```
 
-## Suba todos os serviços
- ```python
+# Suba todos os serviços
 docker compose up -d
-  ```
-
-## Inicie as requisições automáticas (gera observabilidade)
- ```python
-chmod +x send-requests.sh
-nohup ./send-requests.sh > output.log 2>&1 &
-  ```
-
----
-
-## 📊 Acessos e Endpoints
-
-| Serviço   | URL                                      |
-|-----------|-------------------------------------------|
-| API       | http://localhost:5000/roll-dice           |
-| Prometheus| http://localhost:9090                     |
-| Grafana   | http://localhost:3000                     |
-| Jaeger    | http://localhost:16686                    |
-
----
-
-## 💬 Comandos de teste
-
-Enviar requisições automáticas para gerar observabilidade:
-```bash
-chmod +x send-requests.sh
-nohup ./send-requests.sh > output.log 2>&1 &
 ```
 
----
+### Acesso aos serviços
 
-## 👀 O que observar nos dashboards
+| Serviço       | URL                     |
+|---------------|--------------------------|
+| Flask App     | http://localhost:5000    |
+| Prometheus    | http://localhost:9090    |
+| Grafana       | http://localhost:3000    |
+| Jaeger        | http://localhost:16686   |
+| cAdvisor      | http://localhost:8080    |
 
-- **Tempo de resposta médio (P95)**
-- **Service Map** via Jaeger
-- **Logs com trace_id e span_id**
-- **Falhas (status 500) e alertas no Prometheus**
-- **Histogramas reais de resposta**
-- **Requisições por segundo e status da aplicação**
+**Login do Grafana:**  
+Usuário: `admin`  
+Senha: `admin`
 
+## 📈 Prometheus
+
+Arquivo de configuração: [`prometheus/prometheus.yml`](prometheus/prometheus.yml)  
+Regras de alertas: [`prometheus/rules.yml`](prometheus/rules.yml)
+
+Inclui alertas como:
+
+- Alta taxa de erros 500
+- Ausência de requisições
+- Falhas frequentes
+
+## 🔍 OpenTelemetry + Tracing
+
+- O `otel-collector.yaml` define a coleta de traces da aplicação e o envio ao Jaeger.
+- Todas as rotas da aplicação Flask são automaticamente instrumentadas.
+
+## 📁 Estrutura do Projeto
+
+```
+projeto-observabilidade/
+├── build/                     # Código da aplicação Flask
+│   └── app.py
+├── compose.yml                # Compose de todos os serviços
+├── grafana/
+│   ├── dashboards/            # Dashboard JSON
+│   └── provisioning/          # Provisionamento automático
+│       ├── dashboards/
+│       └── datasources/
+├── prometheus/
+│   ├── prometheus.yml
+│   └── rules.yml
+├── otel-collector.yaml        # Configuração do Otel Collector
+├── send-requests.sh           # Script de simulação de carga
+└── README.md                  # Este arquivo
+```
