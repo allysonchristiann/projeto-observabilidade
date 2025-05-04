@@ -67,4 +67,46 @@ Todos os serviços são orquestrados via `docker compose` e estão configurados 
 
 ---
 
-Atualizado em: 18/04/2025 02:14:00
+## 🧪 Simulador de Requisições Automático (`request-simulator`)
+
+Este projeto inclui um container auxiliar chamado `request-simulator`, que é iniciado automaticamente junto com o restante dos serviços. Ele serve para gerar tráfego real para a aplicação Flask e alimentar as ferramentas de observabilidade com:
+
+- **Requisições simuladas** (`/`)
+- **Healthchecks** (`/health`)
+- **Histórico de jogadas** (`/history`)
+- **Erros 500 simulados** a cada 10 ciclos (`/fail`)
+
+### ⚙️ Como funciona
+
+O simulador é um serviço Docker que executa o script `send-requests.sh`. Ele realiza chamadas via `curl` a cada 2 segundos, em loop infinito:
+
+```bash
+#!/bin/bash
+
+i=0
+while true; do
+  curl -s http://flask-app:5000/ > /dev/null
+  curl -s http://flask-app:5000/history > /dev/null
+  curl -s http://flask-app:5000/health > /dev/null
+
+  ((i++))
+  if (( i % 10 == 0 )); then
+    curl -s http://flask-app:5000/fail > /dev/null
+  fi
+
+  sleep 2
+done
+```
+
+## 🚀 Execução
+
+O simulador é iniciado automaticamente com:
+
+```bash
+docker compose up --build -d
+```
+
+Você pode verificar se está funcionando com:
+```bash
+docker logs -f request-simulator
+```
